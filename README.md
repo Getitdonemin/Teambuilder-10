@@ -112,5 +112,8 @@ getRole() // Overridden to return 'Intern'
 Finally, although it’s not a requirement, you should consider adding validation to ensure that user input provided is in the proper expected format.
 ```
 
-### Walkthrough Video Link: 
+### Walkthrough Video Link: [Untitled_ Dec 6, 2022 3_57 PM.webm](https://user-images.githubusercontent.com/107437104/206032447-444bf407-4581-401d-898d-a35de379657b.webm)
 
+### The HTML file generated: ![Team builder screen shot](https://user-images.githubusercontent.com/107437104/206032631-b875efc5-565a-42ce-95b1-1502fd879b01.jpg)
+
+### Github Repository:https://github.com/Getitdonemin/Teambuilder-10
