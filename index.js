@@ -13,6 +13,44 @@ const render = require("./lib/htmlRenderer");
 
 //Employee array
 let employeeArray = []
+//added new prompt for either engineer or intern
+const engineerOrIntern = () => {
+    inquirer.prompt([{
+        message :'would you like to add an engineer or the intern?',
+        type: 'list',
+        choices: ['Engineer', 'Intern'],
+        name: 'engineerOrIntern'
+    }])
+    //engineer's prompt
+    .then(answer => {
+        if(answer.engineerOrIntern == 'Engineer'){
+            inquirer.prompt([
+                {
+                    message: 'Name of the Engineer?',
+                    type: 'input',
+                    name: 'name'
+                },
+                {
+                    message: 'Id of the Engineer?',
+                    type: 'input',
+                    name: 'id'
+                },{
+                    message: 'Email of the Engineer?',
+                    type: 'input',
+                    name: 'email'
+                },{
+                    message: 'Github of the Engineer?',
+                    type: 'input',
+                    name: 'github'
+                },
+            ])
+            .then(engineer => {
+                let newEngineer = new Engineer(engineer.name, engineer.id, engineer.email, engineer.github)
+                employeeArray.push(newEngineer)
+            })
+        }
+    })
+}
 //made prompt for the manager including name id email and office number
 inquirer.prompt([
 {
@@ -37,7 +75,6 @@ inquirer.prompt([
 //pushes the inputs into the array making a new manager
 .then(manager=>{
     let newManager = new Manager(manager.name, manager.id, manager.email, manager.officeNumber)
-    employeeArray.push(newManager)
-
-    
+    employeeArray.push(newManager) 
+    engineerOrIntern() 
 })
