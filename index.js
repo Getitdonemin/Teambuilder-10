@@ -1,124 +1,153 @@
-//importing all the classes and packages
-const Manager = require("./lib/Manager");
+//required packages
+const fs = require('fs');
+const inquirer = require('inquirer');
+
+// Employee template based on these below.
 const Engineer = require("./lib/Engineer");
 const Intern = require("./lib/Intern");
-const inquirer = require("inquirer");
-const path = require("path");
-const fs = require("fs");
+const Manager = require("./lib/Manager");
 
-const OUTPUT_DIR = path.resolve(__dirname, "output");
-const outputPath = path.join(OUTPUT_DIR, "team.html");
-//creates example page into html renderer
-const render = require("./lib/htmlRenderer");
-const { type } = require("os");
+// This array fills in with employee data.
+const membersArray = [];
+// Manager will change so it can't be a const. 
+let manager;
+// This info is for the HTML.
+let teamTitle;
 
-//Employee array
-let employeeArray = []
-// continued question after engineer or intern
-const questionContinue = () =>{
-    inquirer.prompt([{
-        message: 'Want any more team members?',
-        type: 'list',
-        choices: ['yes', 'nah'],
-        name: 'yesOrNah'
-    }])
-    .then(yesOrNah =>{
-        if (yesOrNah.yesOrNah == 'yes'){
-            engineerOrIntern()
+//created prompt for manager's data while using it to create new obj
+function getManagersData() {
+    inquirer.prompt([
+        {   
+            type: "input",
+            message: "Name of your team?",
+            name: "teamTitle"
+        },
+        {   
+            type: "input",
+            message: "Name of the Manager?",
+            name: "managerName"
+        },
+        {  
+            type: "input",
+            message: "Manager's ID?",
+            name: "managerID"
+        },
+        {   
+            type: "input",
+            message: "Manager's email?",
+            name: "managerEmail"
+        },
+        {
+            type: "input",
+            message: "Manager's office number?",
+            name: "officeNumber"
+        }]).then(managerAnswers => {
+            manager = new Manager(managerAnswers.managerName, managerAnswers.managerID, managerAnswers.managerEmail, managerAnswers.officeNumber);
+            teamTitle = managerAnswers.teamTitle;
+            console.log("Any new/current employee that needs to be added?")
+            newOrCurrentEmployeeData();
+        });
+}
+//Then goes into prompt for engineer or Intern
+function newOrCurrentEmployeeData() {
+    inquirer.prompt([
+        {
+            type: "list",
+            message: "What is this employee's role?",
+            name: "employeeRole",
+            choices: ["Intern", "Engineer"]
+        },
+
+        {
+            type: "input",
+            message: "Employee's name?",
+            name: "employeeName"
+        },
+        {
+            type: "input",
+            message: "Employee's id?",
+            name: "employeeId"
+        },
+        {
+            type: "input",
+            message: "Employee's email?",
+            name: "employeeEmail"
+        },
+        {
+            type: "input",
+            message: "Engineer's Github?",
+            name: "github",
+            when: (userInput) => userInput.employeeRole === "Engineer"
+        },
+        {
+            type: "input",
+            message: "Intern's school?",
+            name: "school",
+            when: (userInput) => userInput.employeeRole === "Intern"
+        },
+        {
+            type: "confirm",
+            name: "newEmployee",
+            message: "Would you like to add another member?" 
+        }
+        //from here then pushes either intern or engineer to membersArray
+    ]).then(answers => {
+  
+        if (answers.employeeRole === "Intern") {
+            const employee = new Intern(answers.employeeName, answers.employeeId, answers.employeeEmail, answers.school);
+            membersArray.push(employee);
+        } else if (answers.employeeRole === "Engineer") {
+
+            membersArray.push(new Engineer(answers.employeeName, answers.employeeId, answers.employeeEmail, answers.github));
+        }
+        if (answers.newEmployee === true) {
+            newOrCurrentEmployeeData();
         } else {
-            console.log('Done!')
+
+            var main = fs.readFileSync('./src/main.html', 'utf8');
+
+            main = main.replace(/{{teamTitle}}/g, teamTitle);
+
+            var managerCard = fs.readFileSync('./src/Manager.html', 'utf8');
+            managerCard = managerCard.replace('{{name}}', manager.getName());
+            managerCard = managerCard.replace('{{role}}', manager.getRole());
+            managerCard = managerCard.replace('{{id}}', manager.getId());
+            managerCard = managerCard.replace('{{email}}', manager.getEmail());
+            managerCard = managerCard.replace('{{officeNumber}}', manager.getOfficeNumber());
+
+            var cards = managerCard;
+            for (var i = 0; i < membersArray.length; i++) {
+                var employee = membersArray[i];
+                cards += renderEmployee(employee);
+            }
+
+            main = main.replace('{{cards}}', cards);
+
+            fs.writeFileSync('./output/team.html', main);
+
+            console.log("Your file has been saved!");
         }
-    })
+    });
 }
-//added new prompt for either engineer or intern
-const engineerOrIntern = () => {
-    inquirer.prompt([{
-        message :'would you like to add an engineer or the intern?',
-        type: 'list',
-        choices: ['Engineer', 'Intern'],
-        name: 'engineerOrIntern'
-    }])
-    //engineer's prompt
-    .then(answer => {
-        if(answer.engineerOrIntern == 'Engineer'){
-            inquirer.prompt([
-                {
-                    message: 'Name of the Engineer?',
-                    type: 'input',
-                    name: 'name'
-                },
-                {
-                    message: 'Id of the Engineer?',
-                    type: 'input',
-                    name: 'id'
-                },{
-                    message: 'Email of the Engineer?',
-                    type: 'input',
-                    name: 'email'
-                },{
-                    message: 'Github of the Engineer?',
-                    type: 'input',
-                    name: 'github'
-                },
-            ])
-            .then(engineer => {
-                let newEngineer = new Engineer(engineer.name, engineer.id, engineer.email, engineer.github)
-                employeeArray.push(newEngineer)
-                questionContinue()
-            })
-        }   else if (answer.engineerOrIntern == 'Intern'){
-            inquirer.prompt([
-                {
-                    message: 'Name of the Intern?',
-                    type: 'input',
-                    name: 'name'
-                },
-                {
-                    message: 'Id of the Intern?',
-                    type: 'input',
-                    name: 'id'
-                },{
-                    message: 'Email of the Intern?',
-                    type: 'input',
-                    name: 'email'
-                },{
-                    message: 'School of the Intern?',
-                    type: 'input',
-                    name: 'school'
-                },
-            ])
-            .then(intern =>{
-                let newIntern = new Intern(intern.name, intern.id, intern.email, intern.school)
-                employeeArray.push(newIntern)
-                questionContinue()
-            })
-        }
-    })
+//creates html based on getrole
+function renderEmployee(employee) {
+    if (employee.getRole() === "Good Luck Intern!!") {
+        var internCard = fs.readFileSync('./src/Intern.html', 'utf8');
+        internCard = internCard.replace('{{name}}', employee.getName());
+        internCard = internCard.replace('{{role}}', employee.getRole());
+        internCard = internCard.replace('{{id}}', employee.getId());
+        internCard = internCard.replace('{{email}}', employee.getEmail());
+        internCard = internCard.replace('{{school}}', employee.getSchool());
+        return internCard;
+    } else if (employee.getRole() === "The Engineer!") {
+        var engineerCard = fs.readFileSync('./src/Engineer.html', 'utf8');
+        engineerCard = engineerCard.replace('{{name}}', employee.getName());
+        engineerCard = engineerCard.replace('{{role}}', employee.getRole());
+        engineerCard = engineerCard.replace('{{id}}', employee.getId());
+        engineerCard = engineerCard.replace('{{email}}', employee.getEmail());
+        engineerCard = engineerCard.replace('{{github}}', employee.getGithub());
+        return engineerCard;
+    }
 }
-//made prompt for the manager including name id email and office number
-inquirer.prompt([
-{
-    message: 'Name of the Manager?',
-    type: 'input',
-    name: 'name'
-},
-{
-    message: 'Id of the Manager?',
-    type: 'input',
-    name: 'id'
-},{
-    message: 'Email of the Manager?',
-    type: 'input',
-    name: 'email'
-},{
-    message: 'Officenumber of the Managers office?',
-    type: 'input',
-    name: 'officeNumber'
-},
-])
-//pushes the inputs into the array making a new manager
-.then(manager=>{
-    let newManager = new Manager(manager.name, manager.id, manager.email, manager.officeNumber)
-    employeeArray.push(newManager) 
-    engineerOrIntern() 
-})
+
+getManagersData();
