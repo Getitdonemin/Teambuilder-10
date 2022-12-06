@@ -1,27 +1,20 @@
-const Manager = require('../lib/Manager.js');
+const Manager = require("../lib/Manager");
+const Employee = require("../lib/Employee");
 
-// Class accepts destructured object (name, id, email, officenumber)
-const testObject = {name: 'Man', id: 1, email: "man@some.com", officeNumber: "777"}
-
-test('Checks for inherited Employee properties', () => {
-    const manager = new Manager(testObject);
-    expect(manager.name).toEqual(expect.any(String));
-    console.log(`Manager name: ${manager.name}`)
-    expect(manager.id).toEqual(expect.any(Number));
-    console.log(`Manager id: ${manager.id}`)
-    expect(manager.email).toEqual(expect.any(String));
-    console.log(`Manager email: ${manager.email}`)
+test("Can set office number via constructor argument", () => {
+  const testValue = 100;
+  const e = new Manager("Foo", 1, "test@test.com", testValue);
+  expect(e.officeNumber).toBe(testValue);
 });
 
-test('Checks for office number', () => {
-    const manager = new Manager(testObject);
-    expect(manager.officeNumber).toEqual(expect.any(String));
-    console.log(`Manager office number: ${manager.officeNumber}`)
+test("getRole() should return \"High Status Manager.\"", () => {
+  const testValue = "High Status Manager.";
+  const e = new Manager("Foo", 1, "test@test.com", 100);
+  expect(e.getRole()).toBe(testValue);
 });
 
-test('Gets Manager role', () => {
-    const manager = new Manager(testObject);
-    expect(manager.getRole()).toBe('Manager');
-    console.log(`Manager getRole(): ${manager.getRole()}`)
-    // Returns 'Manager'
+test("Can get office number via getOffice()", () => {
+  const testValue = 100;
+  const e = new Manager("Foo", 1, "test@test.com", testValue);
+  expect(e.getOfficeNumber()).toBe(testValue);
 });

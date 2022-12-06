@@ -1,33 +1,19 @@
-const Intern = require('../lib/Intern.js');
+const Intern = require("../lib/Intern");
 
-// Class accepts destructured object (name, id, email, school)
-const testObject = {name: 'Rookie', id: 3, email: "rookie@some.com", school: "school"}
-
-test('Checks for inherited Employee properties', () => {
-    const intern = new Intern(testObject);
-    expect(intern.name).toEqual(expect.any(String));
-    console.log(`Intern name: ${intern.name}`)
-    expect(intern.id).toEqual(expect.any(Number));
-    console.log(`Intern id: ${intern.id}`)
-    expect(intern.email).toEqual(expect.any(String));
-    console.log(`Intern email: ${intern.email}`)
+test("Can set school via constructor", () => {
+  const testValue = "UCLA";
+  const e = new Intern("Foo", 1, "test@test.com", testValue);
+  expect(e.school).toBe(testValue);
 });
 
-test('Checks for school', () => {
-    const intern = new Intern(testObject);
-    expect(intern.school).toEqual(expect.any(String));
-    console.log(`Intern school: ${intern.school}`)
+test("getRole() should return \"Good Luck Intern!!\"", () => {
+  const testValue = "Good Luck Intern!!";
+  const e = new Intern("Foo", 1, "test@test.com", "UCLA");
+  expect(e.getRole()).toBe(testValue);
 });
 
-test('Gets Interns school', () => {
-    const intern = new Intern(testObject);
-    expect(intern.getSchool()).toEqual(expect.any(String));
-    console.log(`Intern getSchool(): ${intern.getSchool()}`)
-});
-
-test('Gets Intern role', () => {
-    const intern = new Intern(testObject);
-    expect(intern.getRole()).toBe('Intern');
-    console.log(`Intern getRole(): ${intern.getRole()}`)
-    // Returns 'Intern'
+test("Can get school via getSchool()", () => {
+  const testValue = "UCLA";
+  const e = new Intern("Foo", 1, "test@test.com", testValue);
+  expect(e.getSchool()).toBe(testValue);
 });
