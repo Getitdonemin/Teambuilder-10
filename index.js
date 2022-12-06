@@ -10,9 +10,26 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 //creates example page into html renderer
 const render = require("./lib/htmlRenderer");
+const { type } = require("os");
 
 //Employee array
 let employeeArray = []
+// continued question after engineer or intern
+const questionContinue = () =>{
+    inquirer.prompt([{
+        message: 'Want any more team members?',
+        type: 'list',
+        choices: ['yes', 'nah'],
+        name: 'yesOrNah'
+    }])
+    .then(yesOrNah =>{
+        if (yesOrNah.yesOrNah == 'yes'){
+            engineerOrIntern()
+        } else {
+            console.log('Done!')
+        }
+    })
+}
 //added new prompt for either engineer or intern
 const engineerOrIntern = () => {
     inquirer.prompt([{
@@ -47,6 +64,7 @@ const engineerOrIntern = () => {
             .then(engineer => {
                 let newEngineer = new Engineer(engineer.name, engineer.id, engineer.email, engineer.github)
                 employeeArray.push(newEngineer)
+                questionContinue()
             })
         }
     })
